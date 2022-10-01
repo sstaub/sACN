@@ -1,0 +1,37 @@
+#######################################
+# Syntax Coloring Map for sACN
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Receiver	KEYWORD1
+Source	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+stop	KEYWORD2
+receive	KEYWORD2
+send	KEYWORD2
+sendDD	KEYWORD2
+idle	KEYWORD2
+idleDD	KEYWORD2
+callBackDMX	KEYWORD2
+callBackSource	KEYWORD2
+callBackTimeout	KEYWORD2
+callBackFramerate	KEYWORD2
+dmx	KEYWORD2
+dd	KEYWORD2
+CID	KEYWORD2
+name	KEYWORD2
+framerate	KEYWORD2
+sources	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

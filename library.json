@@ -1,0 +1,15 @@
+{
+    "name": "sACN",
+    "keywords": "sACN, DMX",
+    "description": "Arduino library for sending and receiving sACN DMX streams following ANSI E1.31",
+    "authors": {
+        "name": "Stefan Staub"
+    },
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/sstaub/sACN"
+    },
+    "version": "1.0.0",
+    "frameworks": "arduino"
+}
