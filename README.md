@@ -14,6 +14,8 @@ Following parts of the ANSI E1.31 protocol are not supported:
 - Synchronization Packets
 - Preview Data
 
+There is also no support for RDM ANSI E1.20 and RDMNET ANSI E1.33
+
 ### Ethernet library problems
 While writing this library many problems occurs with different ethernet libraries.
 - Teensy 4.1 with FNET does not work because of blocking the sockets
