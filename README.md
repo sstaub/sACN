@@ -23,7 +23,7 @@ While writing this library many problems occurs with different ethernet librarie
 - STM32duino needs to test.
 - Arduino Ethernet library have unexpected problems with sending unicast sACN.
 - WizNet W5500 with Ethernet3 library,
-  unexpected problems occurs with the W5500-EVB-Pico board, which is the best solution because of price (about € 10.-) and the power of the Raspberry Pi Pico. Sending works but not receiving. The Arduino library is recommended for use with Pico and W5500
+  unexpected problems occurs with the W5500-EVB-Pico board, which is the best solution because of price (about € 10.-) and the power of the Raspberry Pi Pico. Sending works but not receiving. The Arduino Ethernet library is recommended for use with Pico and W5500
 - WizNet W5500 a hard reset should performed to avoid connection problems with switches, if this can't done by board hardware. This must done before `Ethernet.begin()`
     - for Ethernet3 library use `Ethernet.hardreset()`
     - Arduino Ethernet library should do this with following code 
