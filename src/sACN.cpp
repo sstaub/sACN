@@ -56,10 +56,10 @@ bool Receiver::receive() {
 
 bool Receiver::parse() {
 	// verify root layer
-	if (sacnPacket[PREAMBLE_ADDR] != PREAMBLE[PREAMBLE_ADDR]) return false;
-	if (sacnPacket[PREAMBLE_ADDR + 1] != PREAMBLE[PREAMBLE_ADDR + 1]) return false;
-	if (sacnPacket[POSTAMBLE_ADDR] != POSTAMBLE[POSTAMBLE_ADDR]) return false;
-	if (sacnPacket[POSTAMBLE_ADDR + 1] != POSTAMBLE[POSTAMBLE_ADDR + 1]) return false;
+	if (sacnPacket[PREAMBLE_ADDR] != PREAMBLE[0]) return false;
+	if (sacnPacket[PREAMBLE_ADDR + 1] != PREAMBLE[1]) return false;
+	if (sacnPacket[POSTAMBLE_ADDR] != POSTAMBLE[0]) return false;
+	if (sacnPacket[POSTAMBLE_ADDR + 1] != POSTAMBLE[1]) return false;
 	for (uint8_t i = 0; i < ACN_IDENTIFIER_SIZE ; i++) {
 		if (sacnPacket[i + ACN_IDENTIFIER_ADDR] != ACN_IDENTIFIER[i]) return false;
 		}
