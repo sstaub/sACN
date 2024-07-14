@@ -184,7 +184,7 @@ Stop UDP connection of the receiver.
 recv1.stop();
 ```
 
-### **receive()**
+### **update()**
 ```cpp
 bool update()
 ```
@@ -193,7 +193,7 @@ Proceed the sACN data of the UDP connection, return true if there is a valid sAC
 
 **Example**
 ```cpp
-recv1.receive();
+recv1.update();
 ```
 
 ### **dmx()**
