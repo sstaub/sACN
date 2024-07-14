@@ -18,6 +18,17 @@
 #include "Arduino.h"
 #include "Udp.h"
 
+/*
+TODO for v1.1
+- [x] CID / Name as global function
+- [x] Sender DD priority should init with global priority of the sender
+- [x] Class init only socket, the rest in begin()
+- [ ] Layer check as functions
+*/
+
+void deviceCID(uint8_t cid[16]);
+void deviceName(const char name[64]);
+
 /**
  * @brief Receiver class for sACN ANSI E1.31
  * 
@@ -32,7 +43,7 @@ class Receiver {
 	 * @param universe DMX universe to receive
 	 * @param unicastMode allows to receive from unicast source
 	 */
-	Receiver(UDP& udp, uint16_t universe, bool unicastMode = false);
+	Receiver(UDP& udp);
 
 	/**
 	 * @brief Destroy the Receiver object
@@ -44,7 +55,7 @@ class Receiver {
 	 * @brief Begin the socket connection
 	 * 
 	 */
-	void begin();
+	void begin(uint16_t universe, bool unicastMode = false);
 
 	/**
 	 * @brief Stop the socket connection
@@ -58,7 +69,7 @@ class Receiver {
 	 * @return true if valid data received
 	 * @return false if there is no valid data
 	 */
-	bool receive();
+	bool update();
 
 	/**
 	 * @brief Callback when receiving changed DMX data
@@ -184,26 +195,8 @@ class Source {
 	 * @brief Construct a new Source object
 	 * 
 	 * @param udp socket for sending
-	 * @param universe DMX universe to send
-	 * @param priority sACN priority
-	 * @param cid ID of the source, set to 0 if you need to do it later
-	 * @param name source name
-	 * @param priorityDD flag for sending optional priority per channel mode
 	 */
-	Source(UDP& udp, uint16_t universe, uint16_t priority, uint8_t cid[16], const char *name, bool priorityDD = false);
-
-	/**
-	 * @brief Construct a new Source object
-	 * 
-	 * @param udp socket for sending
-	 * @param unicastIp IP address for unicast sending
-	 * @param universe DMX universe to send
-	 * @param priority sACN priority
-	 * @param cid ID of the source, set to 0 if you need to do it later
-	 * @param name source name
-	 * @param priorityDD flag for sending optional priority per channel mode
-	 */
-	Source(UDP& udp, IPAddress unicastIp , uint16_t universe, uint16_t priority, uint8_t cid[16], const char *name, bool priorityDD = false);
+	Source(UDP& udp);
 
 	/**
 	 * @brief Destroy the Source object
@@ -214,21 +207,21 @@ class Source {
 	/**
 	 * @brief Begin the socket connection
 	 * 
+	 * @param unicastIp optional IP address for unicast sending
+	 * @param universe DMX universe to send
+	 * @param priority sACN priority
+	 * @param cid ID of the source, set to 0 if you need to do it later
+	 * @param name source name
+	 * @param priorityDD flag for sending optional priority per channel mode
 	 */
-	void begin();
+	void begin(uint16_t universe, uint16_t priority = 100, bool priorityDD = false);
+	void begin(IPAddress unicastIp, uint16_t universe, uint16_t priority = 100, bool priorityDD = false);
 
 	/**
 	 * @brief Stop the socket connection
 	 * 
 	 */
 	void stop();
-
-	/**
-	 * @brief Set the ID if not done in the constructor, this must done before begin
-	 * 
-	 * @param cid 
-	 */
-	void CID(uint8_t cid[16]);
 
 	/**
 	 * @brief Set the DMX data
@@ -293,8 +286,6 @@ class Source {
 	bool unicastMode;
 	uint16_t universe;
 	uint8_t priority;
-	uint8_t cid[16];
-	char name[65];
 	bool priorityDD;
 	uint8_t *sacnPacket; // sacnPacket = new uint8_t [SACN_BUFFER_MAX];
 	uint8_t *sacnPacketDD; // sacnDDPacket = new uint8_t [SACN_BUFFER_MAX];

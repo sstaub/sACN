@@ -8,7 +8,7 @@ IPAddress gateway(10, 101, 1, 100); // Gateway address of your device
 IPAddress subnet(255, 255, 0, 0); // Subnet mask of your device
 
 EthernetUDP sacn;
-Receiver recv(sacn, 1); // universe 1
+Receiver recv(sacn); // universe 1
 
 void dmxReceived() {
 	Serial.println("New DMX data received ");
@@ -40,10 +40,10 @@ void setup() {
 	recv.callbackSource(newSource);
 	recv.callbackFramerate(framerate);
 	recv.callbackTimeout(timeOut);
-	recv.begin();
+	recv.begin(1);
 	Serial.println("sACN start");
 	}
 
 void loop() {
-	recv.receive();
+	recv.update();
 	}

@@ -15,12 +15,18 @@
 #include "sACN.h"
 #include "sACNDefs.h"
 
-Receiver::Receiver(UDP& udp, uint16_t universe, bool unicastMode) {
+uint8_t globalCID[16] = {0};
+void deviceCID(uint8_t cid[16]) {
+	memcpy(globalCID, cid, 16);
+	}
+
+char globalName[64] = {0};
+void deviceName(const char name[64]) {
+	strncpy(globalName, name, 63);
+	}
+
+Receiver::Receiver(UDP& udp) {
 	this->udp = &udp;
-	this->universe = universe;
-	this->unicastMode = unicastMode;
-	mcastIP[2] = universe >> 8;
-	mcastIP[3] = universe;
 	sacnPacket = new uint8_t [SACN_BUFFER_MAX];
 	}
 
@@ -28,7 +34,11 @@ Receiver::~Receiver() {
 	free(sacnPacket);
 	}
 
-void Receiver::begin() {
+void Receiver::begin(uint16_t universe, bool unicastMode) {
+	this->universe = universe;
+	this->unicastMode = unicastMode;
+	mcastIP[2] = universe >> 8;
+	mcastIP[3] = universe;
 	if(unicastMode) udp->begin(ACN_SDT_MULTICAST_PORT);
 	else udp->beginMulticast(mcastIP, ACN_SDT_MULTICAST_PORT);
 	receiverTimeout = millis();
@@ -38,7 +48,7 @@ void Receiver::stop() {
 	udp->stop();
 	}
 
-bool Receiver::receive() {
+bool Receiver::update() {
 	packetSize = udp->parsePacket();
 	if(source.active && ((receiverTimeout + E131_NETWORK_DATA_LOSS_TIMEOUT) < millis())) {
 		source = {};
@@ -188,42 +198,8 @@ uint16_t Receiver::flagAndLength(uint8_t highByte, uint8_t lowByte, uint16_t sta
 	}
 
 
-Source::Source(UDP& udp, uint16_t universe, uint16_t priority, uint8_t cid[16], const char *name, bool priorityDD) {
+Source::Source(UDP& udp) {
 	this->udp = &udp;
-	this->universe = universe;
-	this->priority = priority;
-	this->priorityDD = priorityDD;
-	memcpy(this->cid, cid, CID_SIZE);
-	memcpy(this->name, name, SOURCE_NAME_SIZE);
-	mcastIP[2] = universe >> 8;
-	mcastIP[3] = universe;
-	sacnPacket = new uint8_t [SACN_BUFFER_MAX];
-	initPacket(sacnPacket);
-	if(priorityDD == true) {
-		sacnPacketDD = new uint8_t [SACN_BUFFER_MAX];
-		initPacket(sacnPacketDD);
-		sacnPacketDD[STARTCODE_ADDR] = 0xDD;
-		memset(sacnPacketDD + DMX_VALUES_ADDR, PRIORITY_STANDARD, DMX_SLOTS_MAX );
-		}
-	}
-
-Source::Source(UDP& udp, IPAddress ip, uint16_t universe, uint16_t priority, uint8_t cid[16], const char *name, bool priorityDD) {
-	unicastMode = true;
-	this->udp = &udp;
-	this->universe = universe;
-	this->priority = priority;
-	this->ip = ip;
-	this->priorityDD = priorityDD;
-	memcpy(this->cid, cid, CID_SIZE);
-	memcpy(this->name, name, SOURCE_NAME_SIZE - 1);
-	sacnPacket = new uint8_t [SACN_BUFFER_MAX];
-	initPacket(sacnPacket);
-	if(priorityDD == true) {
-		sacnPacketDD = new uint8_t [SACN_BUFFER_MAX];
-		initPacket(sacnPacketDD);
-		sacnPacketDD[STARTCODE_ADDR] = 0xDD;
-		memset(sacnPacketDD + DMX_VALUES_ADDR, PRIORITY_STANDARD, DMX_SLOTS_MAX );
-		}
 	}
 
 Source::~Source() {
@@ -232,13 +208,52 @@ Source::~Source() {
 		free(sacnPacketDD);
 	}
 
-void Source::begin() {
-	if(unicastMode) udp->begin(ACN_SDT_MULTICAST_PORT);
-	else udp->beginMulticast(mcastIP, ACN_SDT_MULTICAST_PORT);
+void Source::begin(uint16_t universe, uint16_t priority, bool priorityDD) {
+	this->universe = universe;
+	this->priority = priority;
+	this->priorityDD = priorityDD;
+	unicastMode = false;
+	mcastIP[2] = universe >> 8;
+	mcastIP[3] = universe;
+	sacnPacket = new uint8_t [SACN_BUFFER_MAX];
+	initPacket(sacnPacket);
+	if(priorityDD == true) {
+		sacnPacketDD = new uint8_t [SACN_BUFFER_MAX];
+		initPacket(sacnPacketDD);
+		sacnPacketDD[STARTCODE_ADDR] = 0xDD;
+		memset(sacnPacketDD + DMX_VALUES_ADDR, priority, DMX_SLOTS_MAX );
+		}
+	udp->beginMulticast(mcastIP, ACN_SDT_MULTICAST_PORT);
 	for(uint8_t i = 0; i < 3; i++) {
 		send();
 		if(priorityDD) sendDD();
-		delay(40);
+		delay(40); // TODO non block
+		}
+	timestamp = millis();
+	timestampDD = millis();
+	}
+
+void Source::begin(IPAddress ip, uint16_t universe, uint16_t priority, bool priorityDD) {
+	this->universe = universe;
+	this->priority = priority;
+	this->priorityDD = priorityDD;
+	this->ip = ip;
+	unicastMode = true;
+	mcastIP[2] = universe >> 8;
+	mcastIP[3] = universe;
+	sacnPacket = new uint8_t [SACN_BUFFER_MAX];
+	initPacket(sacnPacket);
+	if(priorityDD == true) {
+		sacnPacketDD = new uint8_t [SACN_BUFFER_MAX];
+		initPacket(sacnPacketDD);
+		sacnPacketDD[STARTCODE_ADDR] = 0xDD;
+		memset(sacnPacketDD + DMX_VALUES_ADDR, priority, DMX_SLOTS_MAX );
+		}
+	udp->begin(ACN_SDT_MULTICAST_PORT);
+	for(uint8_t i = 0; i < 3; i++) {
+		send();
+		if(priorityDD) sendDD();
+		delay(40); // TODO non block
 		}
 	timestamp = millis();
 	timestampDD = millis();
@@ -253,11 +268,6 @@ void Source::stop() {
 		delay(40);
 		}
 	udp->stop();
-	}
-
-void Source::CID(uint8_t cid[16]) {
-	memcpy(sacnPacket + CID_ADDR, cid, CID_SIZE);
-	if(priorityDD) memcpy(sacnPacketDD + CID_ADDR, cid, CID_SIZE);
 	}
 
 void Source::dmx(uint8_t *data) {
@@ -331,11 +341,11 @@ void Source::initPacket(uint8_t *packet) {
 	memcpy(packet + ACN_IDENTIFIER_ADDR, ACN_IDENTIFIER, ACN_IDENTIFIER_SIZE);
 	memcpy(packet + ROOT_FLAGS_AND_LENGTH_ADDR, ROOT_FLAGS_AND_LENGTH, ROOT_FLAGS_AND_LENGTH_SIZE);
 	memcpy(packet + VECTOR_ROOT_E131_DATA_ADDR, VECTOR_ROOT_E131_DATA, VECTOR_ROOT_E131_DATA_SIZE);
-	memcpy(packet + CID_ADDR, cid, CID_SIZE);
+	memcpy(packet + CID_ADDR, globalCID, CID_SIZE);
 	// framing layer
 	memcpy(packet + FRAMING_FLAGS_AND_LENGTH_ADDR, FRAMING_FLAGS_AND_LENGTH, FRAMING_FLAGS_AND_LENGTH_SIZE);
 	memcpy(packet + VECTOR_E131_DATA_PACKET_ADDR, VECTOR_E131_DATA_PACKET, VECTOR_E131_DATA_PACKET_SIZE);
-	memcpy(packet + SOURCE_NAME_ADDR, name, SOURCE_NAME_SIZE);
+	memcpy(packet + SOURCE_NAME_ADDR, globalName, SOURCE_NAME_SIZE);
 	packet[PRIORITY_ADDR] = priority;
 	packet[UNIVERSE_ADDR] = universe >> 8;
 	packet[UNIVERSE_ADDR + 1] = universe;

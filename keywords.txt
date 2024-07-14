@@ -13,9 +13,11 @@ Source	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
+deviceCID	KEYWORD2
+deviceName	KEYWORD2
 begin	KEYWORD2
 stop	KEYWORD2
-receive	KEYWORD2
+update	KEYWORD2
 send	KEYWORD2
 sendDD	KEYWORD2
 idle	KEYWORD2
@@ -26,10 +28,14 @@ callBackTimeout	KEYWORD2
 callBackFramerate	KEYWORD2
 dmx	KEYWORD2
 dd	KEYWORD2
-CID	KEYWORD2
 name	KEYWORD2
 framerate	KEYWORD2
 sources	KEYWORD2
+generateUUID	KEYWORD2
+verifyUUID	KEYWORD2
+printUUID	KEYWORD2
+generateMAC	KEYWORD2
+printMAC	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

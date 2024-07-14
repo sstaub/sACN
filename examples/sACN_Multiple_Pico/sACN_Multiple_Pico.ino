@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Ethernet.h>
 #include "sACN.h"
-#include "IDTools.h"
+#include "IDToolsPico.h"
 #include "Ticker.h"
 
 #define ETH_RST     20
@@ -105,10 +105,10 @@ void hardreset(uint8_t pinRST) {
 void setup() {
   Serial.begin(9600);
   delay(2000);
-  generateUUID(cid, micros());
+  generateUUID(cid);
   deviceCID(cid);
   deviceName("Arduino");
-  generateMAC(mac, micros());
+  generateMAC(mac);
   Ethernet.init(ETH_CS);
   hardreset(ETH_RST);
   Ethernet.begin(mac, ip, dns, gateway, subnet);
