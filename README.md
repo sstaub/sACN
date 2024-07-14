@@ -111,7 +111,7 @@ void loop() {
 In `IDTools.h` you find some useful tools to generate an individual serial number (UUID/CID) and MAC address, also for formatted printing. The MAC address is only valid in local networks. All tools needs a random start number to generate, this can e.g. noise values from Analog inputs, RTC ...<br>
 The functions must call inside ```setup()```
 
-### CID serial number Tools
+### UUID/CID serial number Tools
 ```cpp
 void generateUUID(uint8_t uuid[], unsigned int srnd)
 uint8_t* generateUUID(unsigned int srnd)
@@ -127,7 +127,7 @@ uint8_t* generateMAC(unsigned int srnd)
 In `IDToolsPico.h` you find some useful tools to generate an individual serial number (UUID/CID) and MAC address, also for formatted printing. The MAC address is only valid in local networks. There is no random init necessary.
 The functions must call inside ```setup()```
 
-### CID serial number Tools
+### UUID/CID serial number Tools
 ```cpp
 void generateUUID(uint8_t uuid[])
 uint8_t* generateUUID()
