@@ -64,7 +64,7 @@ IPAddress gateway(10, 101, 1, 100); // IP
 IPAddress subnet(255, 255, 0, 0); // 
 
 EthernetUDP sacn;
-Receiver recv(sacn); // universe 1
+Receiver recv(sacn);
 
 void dmxReceived() {
   Serial.println("New DMX data received ");
@@ -96,7 +96,7 @@ void setup() {
   recv.callbackSource(newSource);
   recv.callbackTimeout(timeOut);
   recv.callbackFramerate(framerate);
-  recv.begin(1);
+  recv.begin(1); // universe 1
   Serial.println("sACN start");
   }
 
@@ -153,7 +153,7 @@ Create a Receiver object.
 **Example**
 ```cpp
 EthernetUDP sacn1;
-Receiver recv1(sacn1); // Universe 1, no Unicast
+Receiver recv1(sacn1);
 ```
 
 ## Methods
@@ -169,7 +169,7 @@ Start the UDP connection of the receiver, this should happen in `setup()`.
 
 **Example**
 ```cpp
-recv1.begin(1);
+recv1.begin(1); // Universe 1, no Unicast
 ```
 
 ### **stop()**
@@ -371,7 +371,7 @@ Create a Source object.
 **Example**
 ```cpp
 EthernetUDP sacn1;
-Source send1(sacn1); // universe 1 with priority 100
+Source send1(sacn1);
 ```
 
 ## Methods
